@@ -6,6 +6,37 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <pthread.h>
+
+char globaljson[25] = "";
+
+char *xj;
+char *yj;
+
+
+
+void *threadlock(void *str) {
+
+    parse(str, strlen(globaljson), &xj, &yj);
+
+    printf("%s %s \n", xj, yj);
+
+
+    Display *dpy;
+    Window root_window;
+
+    dpy = XOpenDisplay(0);
+
+    root_window = XRootWindow(dpy, 0);
+     
+    XSelectInput(dpy, root_window, KeyReleaseMask);
+
+    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, xj, yj);
+
+    XFlush(dpy);
+
+}
+
 
 int parse(unsigned char* in, size_t len, char **a, char **b){
   char new[50] = "";
@@ -68,25 +99,15 @@ void onclose(ws_cli_conn_t *client)
 void onmessage(ws_cli_conn_t *client,
     const unsigned char *msg, uint64_t size, int type)
 {
+    strcpy(globaljson, msg);
+
+    pthread_t threadID;
+
+    int status = pthread_create(&threadID, NULL, threadlock, globaljson);
+
     
-    char p[50] = "";
-    strcpy(p, msg);
 
-
-    char * a, * b;
-
-    parse(p, strlen(p), &a, &b);
-
-
-    printf("%s %s \n", a, b);
-
-    Display *dpy = XOpenDisplay(0);
-    Window root_window;
-    root_window = XRootWindow(dpy, 0);
-    XSelectInput(dpy, root_window, KeyReleaseMask);
-    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, atoi(a), atoi(b));
-    XFlush(dpy);
-    XSync(dpy, False);
+    pthread_join(threadID, NULL);
 
     //ws_sendframe_txt(client, "gotten");
 
@@ -110,3 +131,13 @@ int main(void)
 
     return (0);
 }
+
+/*
+Display *dpy = XOpenDisplay(0);
+    Window root_window;
+    root_window = XRootWindow(dpy, 0);
+    XSelectInput(dpy, root_window, KeyReleaseMask);
+    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, atoi(a), atoi(b));
+    XFlush(dpy);
+    XSync(dpy, False);
+    */

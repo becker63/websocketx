@@ -18,3 +18,11 @@ gcc listener.c /home/becker/build/wsServer/build/libws.a -lX11 -lXi -pthread -o 
 compile numcheck
 
 gcc numcheck.c -o numcheck -lpthread && ./numcheck
+
+
+
+
+
+bigass command for compiling xlib testing and checking how many xorg threads it spawns
+
+gcc xlibtesting.c -o xlibtesting -lX11 -lXi && ./xlibtesting & echo && for i in {1..10000}; do netstat -an | grep "X11" | sed -n 'p;$=' | tail -1 && sleep 1 && echo ; done
