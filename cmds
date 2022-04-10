@@ -1,0 +1,20 @@
+one liners
+
+
+find how many xorg threads there are (max on desktop seems to be 250), problem with wsserver, onmessage creates a new thread i think
+
+echo && for i in {1..10000}; do netstat -an | grep "X11" | sed -n 'p;$=' | grep '^..$' && sleep 1 && echo ; done
+
+
+
+
+compile listener 
+
+gcc listener.c /home/becker/build/wsServer/build/libws.a -lX11 -lXi -pthread -o listener && ./listener
+
+
+
+
+compile numcheck
+
+gcc numcheck.c -o numcheck -lpthread && ./numcheck

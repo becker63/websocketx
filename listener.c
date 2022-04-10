@@ -1,11 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include "/home/becker/build/wsServer/include/ws.h"
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 
+int parse(unsigned char* in, size_t len, char **a, char **b){
+  char new[50] = "";
+
+
+  //iterate over string
+  int i;
+  for (i = 0; i < len; i++) {
+    char ptr = in[i]; 
+    if (isdigit(in[i])) {
+        strncat(new, &ptr, 1);
+    }
+
+    char j = ',';
+
+    if ( in[i] == j ) {
+        strncat(new, &ptr, 1);
+    }
+  }
+
+  char * separator = ",";
+  char * one = strtok(new, separator);
+  char * two = strtok(NULL, "");
+
+
+  *a = one;
+  *b = two;
+
+}
 
 /**
  * @brief This function is called whenever a new connection is opened.
@@ -39,21 +68,28 @@ void onclose(ws_cli_conn_t *client)
 void onmessage(ws_cli_conn_t *client,
     const unsigned char *msg, uint64_t size, int type)
 {
-    char *cli;
-    cli = ws_getaddress(client);
-    printf("%s", msg);
-    char test;
-    test = atoi(msg);
+    
+    char p[50] = "";
+    strcpy(p, msg);
+
+
+    char * a, * b;
+
+    parse(p, strlen(p), &a, &b);
+
+
+    printf("%s %s \n", a, b);
 
     Display *dpy = XOpenDisplay(0);
     Window root_window;
     root_window = XRootWindow(dpy, 0);
     XSelectInput(dpy, root_window, KeyReleaseMask);
-    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, test, test);
+    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, atoi(a), atoi(b));
     XFlush(dpy);
     XSync(dpy, False);
 
-    free(test);
+    //ws_sendframe_txt(client, "gotten");
+
 }
 
 int main(void)
