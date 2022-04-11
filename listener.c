@@ -31,7 +31,7 @@ void *threadlock(void *str) {
      
     XSelectInput(dpy, root_window, KeyReleaseMask);
 
-    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, xj, yj);
+    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, atoi(xj), atoi(yj));
 
     XFlush(dpy);
 
